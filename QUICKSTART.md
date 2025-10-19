@@ -52,16 +52,14 @@ python app.py
 
 ## Configuration (Optional)
 
-If you have Google Cloud credentials:
+If you have Google Cloud with Vertex AI enabled:
 
 1. Edit `.env` file:
 ```env
+GOOGLE_GENAI_USE_VERTEXAI=1
 GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_REGION=us-central1
-GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+GOOGLE_CLOUD_LOCATION=us-central1
 ```
-
-2. Place your service account key file in the project directory
 
 **Note**: The game works without Google Cloud credentials using fallback scenarios!
 
