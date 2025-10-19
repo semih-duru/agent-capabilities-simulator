@@ -117,6 +117,7 @@ http://localhost:5000
 
 ### Scenario Management
 - Add custom scenarios via API
+- **NEW: Generate scenarios from PDF documents using AI**
 - Predefined decision templates
 - JSON-based scenario storage
 - Week-based scenario availability
@@ -138,6 +139,7 @@ http://localhost:5000
 ### Scenario Management
 - `GET /api/scenarios` - Get all scenarios
 - `POST /api/scenarios/add` - Add a new scenario
+- `POST /api/scenarios/add-from-pdf` - Generate scenarios from PDF document
 
 ## 🎓 Learning Objectives
 
@@ -154,6 +156,25 @@ This simulation teaches:
 ## 🔧 Customization
 
 ### Adding Custom Scenarios
+
+#### Method 1: From PDF Document (NEW! ⚡)
+
+Upload a PDF and let AI generate scenarios automatically:
+
+```bash
+curl -X POST http://localhost:5000/api/scenarios/add-from-pdf \
+  -F "pdf_file=@your_document.pdf"
+```
+
+Perfect for:
+- Technical documentation
+- Enterprise architecture guides
+- Development best practices
+- AI/ML deployment guides
+
+See [PDF_SCENARIO_GUIDE.md](PDF_SCENARIO_GUIDE.md) for detailed instructions and examples.
+
+#### Method 2: Manual JSON
 
 POST to `/api/scenarios/add`:
 ```json
