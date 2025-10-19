@@ -6,7 +6,7 @@ load_dotenv()
 
 # Google Cloud Configuration
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "")
-LOCATION = os.getenv("GOOGLE_CLOUD_REGION", "us-central1")
+LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 MODEL_NAME = "gemini-2.0-flash-exp"
 
 # Game Configuration

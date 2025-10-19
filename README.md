@@ -81,9 +81,9 @@ cp .env.example .env
 
 Edit `.env` with your configuration:
 ```
+GOOGLE_GENAI_USE_VERTEXAI=1
 GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_REGION=us-central1
-GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+GOOGLE_CLOUD_LOCATION=us-central1
 ```
 
 4. **Run the application**

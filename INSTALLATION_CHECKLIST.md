@@ -60,15 +60,9 @@ Use this checklist to verify your installation and setup.
 - [ ] Edit .env file (if using Vertex AI)
   ```bash
   # Add your values:
+  GOOGLE_GENAI_USE_VERTEXAI=1
   GOOGLE_CLOUD_PROJECT=your-project-id
-  GOOGLE_CLOUD_REGION=us-central1
-  GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
-  ```
-
-- [ ] Place service account key (if using Vertex AI)
-  ```bash
-  # Put your credentials.json in the project directory
-  ls credentials.json
+  GOOGLE_CLOUD_LOCATION=us-central1
   ```
 
 ## File Structure Verification
@@ -244,9 +238,9 @@ chmod +x run.sh
 ```bash
 # Check:
 - Is .env configured?
-- Is credentials.json in place?
 - Is Vertex AI API enabled?
-- Is service account key valid?
+- Are you properly authenticated to GCP?
+- Is GOOGLE_GENAI_USE_VERTEXAI set to 1?
 
 # Workaround: App works without AI using fallback scenarios
 ```
@@ -281,11 +275,6 @@ Test in multiple browsers:
 - [ ] .env file not committed to git
   ```bash
   cat .gitignore | grep .env
-  ```
-
-- [ ] Credentials file not committed
-  ```bash
-  cat .gitignore | grep credentials.json
   ```
 
 - [ ] Virtual environment not committed

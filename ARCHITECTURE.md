@@ -282,9 +282,9 @@ Recommendations:
 
 ### Environment Variables
 Required:
+- `GOOGLE_GENAI_USE_VERTEXAI`
 - `GOOGLE_CLOUD_PROJECT`
-- `GOOGLE_CLOUD_REGION`
-- `GOOGLE_APPLICATION_CREDENTIALS`
+- `GOOGLE_CLOUD_LOCATION`
 
 Optional:
 - `FLASK_ENV`
