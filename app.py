@@ -3,14 +3,16 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from game_engine import GameEngine
 from scenario_manager import ScenarioManager
+from pdf_scenario_parser import PDFScenarioParser
 import traceback
 
 app = Flask(__name__)
 CORS(app)
 
-# Initialize game engine and scenario manager
+# Initialize game engine, scenario manager, and PDF parser
 game_engine = GameEngine()
 scenario_manager = ScenarioManager()
+pdf_parser = PDFScenarioParser()
 
 
 @app.route('/')
@@ -185,6 +187,66 @@ def add_scenario():
         return jsonify({
             'success': False,
             'error': str(e)
+        }), 500
+
+
+@app.route('/api/scenarios/add-from-pdf', methods=['POST'])
+def add_scenarios_from_pdf():
+    """
+    Add scenarios from a PDF document.
+    Upload a PDF file and AI will extract/generate scenarios from it.
+    """
+    try:
+        # Check if file is present
+        if 'pdf_file' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'No PDF file provided. Please upload a file with key "pdf_file"'
+            }), 400
+        
+        pdf_file = request.files['pdf_file']
+        
+        # Check if file is actually selected
+        if pdf_file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'No file selected'
+            }), 400
+        
+        # Check file extension
+        if not pdf_file.filename.lower().endswith('.pdf'):
+            return jsonify({
+                'success': False,
+                'error': 'File must be a PDF'
+            }), 400
+        
+        # Parse PDF and generate scenarios
+        scenarios = pdf_parser.parse_pdf_to_scenarios(pdf_file)
+        
+        # Add all scenarios to the scenario manager
+        added_count = 0
+        for scenario in scenarios:
+            if scenario_manager.add_scenario(scenario):
+                added_count += 1
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully added {added_count} scenarios from PDF',
+            'scenarios_added': added_count,
+            'scenarios': scenarios
+        })
+        
+    except ValueError as e:
+        return jsonify({
+            'success': False,
+            'error': f'PDF parsing error: {str(e)}'
+        }), 400
+    except Exception as e:
+        print(f"Error processing PDF: {e}")
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': f'Failed to process PDF: {str(e)}'
         }), 500
 
 
