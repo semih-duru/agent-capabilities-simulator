@@ -26,3 +26,7 @@ MATURITY_LEVELS = {
 # Thresholds for production readiness
 PRODUCTION_READY_THRESHOLD = 60
 MINIMUM_ACCEPTABLE_THRESHOLD = 40
+
+# Upload Configuration
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {'pdf'}

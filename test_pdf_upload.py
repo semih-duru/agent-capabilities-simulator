@@ -87,7 +87,10 @@ def test_pdf_upload(server_url="http://localhost:5000"):
             print("✅ Upload successful!\n")
             print(f"📊 Results:")
             print(f"   - Scenarios added: {data.get('scenarios_added', 0)}")
-            print(f"   - Message: {data.get('message', '')}\n")
+            print(f"   - Message: {data.get('message', '')}")
+            if 'pdf_saved_as' in data:
+                print(f"   - PDF saved as: {data['pdf_saved_as']}")
+            print()
             
             # Display scenarios
             scenarios = data.get('scenarios', [])

@@ -42,6 +42,9 @@ Thumbs.db
 scenarios.json
 game_saves/
 
+# Uploaded PDFs
+uploads/
+
 # Logs
 *.log
 

@@ -5,9 +5,20 @@ from game_engine import GameEngine
 from scenario_manager import ScenarioManager
 from pdf_scenario_parser import PDFScenarioParser
 import traceback
+import os
+from datetime import datetime
+from werkzeug.utils import secure_filename
+import config
 
 app = Flask(__name__)
 CORS(app)
+
+# Configure upload folder
+app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Create upload folder if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize game engine, scenario manager, and PDF parser
 game_engine = GameEngine()
@@ -220,8 +231,19 @@ def add_scenarios_from_pdf():
                 'error': 'File must be a PDF'
             }), 400
         
-        # Parse PDF and generate scenarios
-        scenarios = pdf_parser.parse_pdf_to_scenarios(pdf_file)
+        # Generate safe filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        original_filename = secure_filename(pdf_file.filename)
+        filename = f"{timestamp}_{original_filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Save the PDF file
+        pdf_file.save(filepath)
+        print(f"PDF saved to: {filepath}")
+        
+        # Parse PDF and generate scenarios (read from saved file)
+        with open(filepath, 'rb') as f:
+            scenarios = pdf_parser.parse_pdf_to_scenarios(f)
         
         # Add all scenarios to the scenario manager
         added_count = 0
@@ -233,7 +255,8 @@ def add_scenarios_from_pdf():
             'success': True,
             'message': f'Successfully added {added_count} scenarios from PDF',
             'scenarios_added': added_count,
-            'scenarios': scenarios
+            'scenarios': scenarios,
+            'pdf_saved_as': filename
         })
         
     except ValueError as e:
