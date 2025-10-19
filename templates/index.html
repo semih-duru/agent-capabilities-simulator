@@ -386,6 +386,32 @@
             display: none;
         }
 
+        .upload-status {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        .upload-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .upload-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .upload-status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         @media (max-width: 1024px) {
             .game-container {
                 grid-template-columns: 1fr;
@@ -396,26 +422,24 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 Agentic Platform Simulation</h1>
-            <p>Master the art of building enterprise multi-agent platforms</p>
+            <h1>🤖 AI Platform Strategy</h1>
+            <p>Strategic simulation for building enterprise AI platforms</p>
         </div>
 
         <div id="welcomeScreen" class="main-content welcome-screen">
-            <h2>Welcome to the Challenge</h2>
-            <p>
-                You are the newly appointed Chief AI Officer tasked with building a production-ready 
-                multi-agent platform for your enterprise. You have a limited budget, time, and resources.
-            </p>
-            <p>
-                Every decision you make will impact the maturity of five critical capabilities:
-                <strong>Agent Development</strong>, <strong>Agent Operations</strong>, 
-                <strong>Data Platforms</strong>, <strong>Security</strong>, and <strong>Governance</strong>.
-            </p>
-            <p>
-                Your goal is to launch a stable, secure, and well-governed platform. 
-                Are you ready to take on this challenge?
-            </p>
-            <button class="btn" onclick="startNewGame()">Start New Game</button>
+            <h2>AI Platform Strategy Game</h2>
+            <p>Build a production-ready multi-agent platform. Make strategic decisions to balance budget, security, and performance.</p>
+            
+            <div class="action-buttons" style="justify-content: center; margin-top: 40px;">
+                <button class="btn" onclick="startNewGame()">Start Game</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('pdfInput').click()">
+                    📄 Upload PDF Scenario
+                </button>
+            </div>
+            
+            <input type="file" id="pdfInput" accept=".pdf" style="display: none;" onchange="uploadPDF(event)">
+            
+            <div id="uploadStatus" class="upload-status hidden"></div>
         </div>
 
         <div id="gameScreen" class="hidden">
@@ -499,26 +523,26 @@
 
                     <div class="action-buttons">
                         <button class="btn btn-success" onclick="launchProduction()" id="launchBtn">
-                            Launch to Production
+                            🚀 Launch
                         </button>
                         <button class="btn btn-danger" onclick="endGame()" id="endBtn">
-                            End Game
+                            End
                         </button>
                     </div>
                 </div>
 
                 <div class="main-content">
                     <div id="decisionsArea">
-                        <h2>Make Your Decision</h2>
+                        <h2>Strategic Decisions</h2>
                         <div id="loadingDecisions" class="loading hidden">
                             <div class="spinner"></div>
-                            <p>Generating decisions with AI...</p>
+                            <p>Loading...</p>
                         </div>
                         <div id="decisionsContainer" class="decisions-container"></div>
                     </div>
 
                     <div id="eventsArea" class="events-section hidden">
-                        <h3>Recent Events</h3>
+                        <h3>Activity Log</h3>
                         <div id="eventsContainer"></div>
                     </div>
                 </div>
@@ -530,7 +554,7 @@
                 <h2 style="text-align: center; color: #667eea; margin-bottom: 30px;">Final Report</h2>
                 <div id="reportContent"></div>
                 <div style="text-align: center; margin-top: 40px;">
-                    <button class="btn" onclick="location.reload()">Play Again</button>
+                    <button class="btn" onclick="location.reload()">New Game</button>
                 </div>
             </div>
         </div>
@@ -540,6 +564,48 @@
         let currentGameState = null;
         let currentDecisions = [];
         let selectedOption = null;
+
+        async function uploadPDF(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.className = 'upload-status loading';
+            statusDiv.textContent = 'Uploading and processing PDF...';
+            statusDiv.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+
+            try {
+                const response = await fetch('/api/scenarios/add-from-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusDiv.className = 'upload-status success';
+                    statusDiv.textContent = `✓ Success! Added ${data.scenarios_added} scenarios from PDF`;
+                    
+                    // Reset file input
+                    event.target.value = '';
+                    
+                    // Hide status after 5 seconds
+                    setTimeout(() => {
+                        statusDiv.classList.add('hidden');
+                    }, 5000);
+                } else {
+                    statusDiv.className = 'upload-status error';
+                    statusDiv.textContent = `✗ Error: ${data.error}`;
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                statusDiv.className = 'upload-status error';
+                statusDiv.textContent = '✗ Upload failed. Please try again.';
+            }
+        }
 
         async function startNewGame() {
             try {
@@ -623,7 +689,7 @@
                     currentDecisions = data.decisions;
                     displayDecisions(data.decisions);
                 } else {
-                    container.innerHTML = '<p>No decisions available. Click "Launch to Production" when ready.</p>';
+                    container.innerHTML = '<p>No decisions available. Click "Launch" when ready.</p>';
                 }
             } catch (error) {
                 console.error('Error loading decisions:', error);
@@ -649,7 +715,7 @@
                                     <span class="cost-item">👥 ${option.resources_required} resources</span>
                                 </div>
                                 <div class="option-impacts">
-                                    <strong>Maturity Impact:</strong>
+                                    <strong>Impact:</strong>
                                     <div class="impact-grid">
                                         ${Object.entries(option.maturity_impact || {})
                                             .filter(([_, value]) => value !== 0)
@@ -661,7 +727,7 @@
                                     </div>
                                 </div>
                                 ${option.consequences ? `<p style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                                    <strong>Consequences:</strong> ${option.consequences}
+                                    ${option.consequences}
                                 </p>` : ''}
                             </div>
                         `).join('')}
@@ -669,7 +735,7 @@
                     <button class="btn" style="margin-top: 15px;" 
                             onclick="confirmDecision(${decisionIndex})" 
                             id="confirmBtn${decisionIndex}" disabled>
-                        Confirm Decision
+                        Confirm
                     </button>
                 </div>
             `).join('');
@@ -725,7 +791,7 @@
         }
 
         async function launchProduction() {
-            if (!confirm('Are you ready to launch to production? This cannot be undone.')) {
+            if (!confirm('Launch to production? This cannot be undone.')) {
                 return;
             }
 
@@ -736,7 +802,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(`Production Launched!\n\nRisk Level: ${data.analysis.risk_level.toUpperCase()}\n\nPotential Issues: ${data.production_issues.length}`);
+                    alert(`✓ Launched!\nRisk: ${data.analysis.risk_level.toUpperCase()}\nIssues: ${data.production_issues.length}`);
                     
                     // Refresh game state
                     const stateResponse = await fetch('/api/game/state');
@@ -756,7 +822,7 @@
         }
 
         async function endGame() {
-            if (!confirm('Are you sure you want to end the game?')) {
+            if (!confirm('End game now?')) {
                 return;
             }
 
@@ -794,7 +860,7 @@
 
                 <div class="report-section">
                     <h3>Strengths</h3>
-                    ${report.strengths.map(s => `<div class="list-item">✅ ${s}</div>`).join('')}
+                    ${report.strengths.map(s => `<div class="list-item">✓ ${s}</div>`).join('')}
                 </div>
 
                 <div class="report-section">
